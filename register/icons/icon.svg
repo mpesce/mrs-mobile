@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#1a1a2e"/>
+  <circle cx="256" cy="220" r="80" fill="none" stroke="#da7e7e" stroke-width="14"/>
+  <line x1="256" y1="140" x2="256" y2="100" stroke="#da7e7e" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="300" x2="256" y2="340" stroke="#da7e7e" stroke-width="10" stroke-linecap="round"/>
+  <line x1="176" y1="220" x2="136" y2="220" stroke="#da7e7e" stroke-width="10" stroke-linecap="round"/>
+  <line x1="336" y1="220" x2="376" y2="220" stroke="#da7e7e" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="256" cy="220" r="10" fill="#da7e7e"/>
+  <line x1="220" y1="350" x2="292" y2="350" stroke="#da7e7e" stroke-width="10" stroke-linecap="round"/>
+  <line x1="256" y1="350" x2="256" y2="400" stroke="#da7e7e" stroke-width="10" stroke-linecap="round"/>
+  <text x="256" y="455" text-anchor="middle" font-family="sans-serif" font-weight="bold" font-size="56" fill="#da7e7e">REG</text>
+</svg>
