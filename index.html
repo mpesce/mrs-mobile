@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MRS">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-152.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+    <title>MRS Mobile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #header {
+            padding: 12px 16px;
+            background: #1a1a2e;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        #header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #7eb8da;
+        }
+
+        #status {
+            font-size: 12px;
+            color: #888;
+        }
+
+        #status.active {
+            color: #4caf50;
+        }
+
+        #status.error {
+            color: #f44336;
+        }
+
+        #top-half {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            border-bottom: 2px solid #7eb8da;
+            background: #0d0d1a;
+        }
+
+        #json-display {
+            font-family: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #c8d6e5;
+        }
+
+        #json-display .key {
+            color: #7eb8da;
+        }
+
+        #json-display .string {
+            color: #a8e6a1;
+        }
+
+        #json-display .number {
+            color: #f0c674;
+        }
+
+        #json-display .boolean {
+            color: #cc99cd;
+        }
+
+        #json-display .null {
+            color: #888;
+        }
+
+        #bottom-half {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #url-section h2 {
+            font-size: 14px;
+            color: #7eb8da;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hit-card {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .hit-card .distance {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .hit-card a {
+            color: #7eb8da;
+            text-decoration: none;
+            font-size: 15px;
+            word-break: break-all;
+        }
+
+        .hit-card a:active {
+            color: #a8e6a1;
+        }
+
+        #no-hits {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        #controls {
+            padding: 10px 16px;
+            background: #1a1a2e;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #7eb8da;
+            border-radius: 8px;
+            background: transparent;
+            color: #7eb8da;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            background: #7eb8da;
+            color: #0a0a0a;
+        }
+
+        button#btn-scan.scanning {
+            background: #7eb8da;
+            color: #0a0a0a;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        #range-control {
+            padding: 6px 16px;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        #range-control label {
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
+
+        #range-control input[type="range"] {
+            flex: 1;
+            accent-color: #7eb8da;
+        }
+
+        #range-value {
+            font-size: 12px;
+            color: #7eb8da;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .startup-message {
+            text-align: center;
+            color: #666;
+            margin-top: 40px;
+            line-height: 1.6;
+        }
+
+        .startup-message .icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="header">
+            <h1>MRS Mobile</h1>
+            <span id="status">Idle</span>
+        </div>
+
+        <div id="top-half">
+            <div id="json-display">
+                <div class="startup-message">
+                    <div class="icon">&#x1F30D;</div>
+                    Tap <strong>Scan</strong> to query nearby MRS registrations
+                </div>
+            </div>
+        </div>
+
+        <div id="bottom-half">
+            <div id="url-section">
+                <h2>Service Points</h2>
+                <div id="url-list">
+                    <div id="no-hits">No results yet</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="range-control">
+            <label for="range-slider">Range:</label>
+            <input type="range" id="range-slider" min="10" max="10000" value="250" step="10">
+            <span id="range-value">250 m</span>
+        </div>
+
+        <div id="controls">
+            <button id="btn-scan">Scan</button>
+            <button id="btn-watch">Watch</button>
+        </div>
+    </div>
+
+    <script>
+        var MRS_SERVER = "https://owen.iz.net";
+        var jsonDisplay = document.getElementById("json-display");
+        var urlList = document.getElementById("url-list");
+        var statusEl = document.getElementById("status");
+        var btnScan = document.getElementById("btn-scan");
+        var btnWatch = document.getElementById("btn-watch");
+        var rangeSlider = document.getElementById("range-slider");
+        var rangeValue = document.getElementById("range-value");
+        var watchId = null;
+
+        rangeSlider.addEventListener("input", function () {
+            var val = parseInt(rangeSlider.value);
+            if (val >= 1000) {
+                rangeValue.textContent = (val / 1000).toFixed(1) + " km";
+            } else {
+                rangeValue.textContent = val + " m";
+            }
+        });
+
+        function setStatus(text, type) {
+            statusEl.textContent = text;
+            statusEl.className = type || "";
+        }
+
+        function syntaxHighlight(json) {
+            var str = JSON.stringify(json, null, 2);
+            str = str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return str.replace(
+                /("(\\u[\da-fA-F]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?|\bnull\b)/g,
+                function (match) {
+                    var cls = "number";
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = "key";
+                            return '<span class="' + cls + '">' + match + "</span>";
+                        } else {
+                            cls = "string";
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = "boolean";
+                    } else if (/null/.test(match)) {
+                        cls = "null";
+                    }
+                    return '<span class="' + cls + '">' + match + "</span>";
+                }
+            );
+        }
+
+        function displayResults(data) {
+            jsonDisplay.innerHTML = syntaxHighlight(data);
+
+            urlList.innerHTML = "";
+
+            data.results.sort(function (a, b) {
+                return (a.distance || Infinity) - (b.distance || Infinity);
+            });
+
+            if (!data.results || data.results.length === 0) {
+                urlList.innerHTML = '<div id="no-hits">No hits at this location</div>';
+                return;
+            }
+
+            for (var i = 0; i < data.results.length; i++) {
+                var result = data.results[i];
+                var card = document.createElement("div");
+                card.className = "hit-card";
+
+                var dist = document.createElement("div");
+                dist.className = "distance";
+                var d = result.distance;
+                if (d !== undefined && d !== null) {
+                    dist.textContent = d < 1000
+                        ? Math.round(d) + " m away"
+                        : (d / 1000).toFixed(1) + " km away";
+                } else {
+                    dist.textContent = "Distance unknown";
+                }
+                card.appendChild(dist);
+
+                var link = document.createElement("a");
+                link.href = result.service_point;
+                link.target = "_blank";
+                link.rel = "noopener";
+                link.textContent = result.service_point;
+                card.appendChild(link);
+
+                urlList.appendChild(card);
+            }
+        }
+
+        function queryMRS(lat, lon, ele) {
+            var range = parseInt(rangeSlider.value);
+            setStatus("Querying...", "active");
+
+            var body = JSON.stringify({
+                location: {
+                    lat: lat,
+                    lon: lon,
+                    ele: ele || 0
+                },
+                range: range
+            });
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", MRS_SERVER + "/search", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        displayResults(data);
+                        var count = data.results ? data.results.length : 0;
+                        setStatus(count + " hit" + (count !== 1 ? "s" : "") + " found", "active");
+                    } catch (e) {
+                        setStatus("Parse error", "error");
+                        jsonDisplay.textContent = xhr.responseText;
+                    }
+                } else {
+                    setStatus("Server error: " + xhr.status, "error");
+                    jsonDisplay.textContent = "HTTP " + xhr.status + "\n" + xhr.responseText;
+                }
+            };
+
+            xhr.onerror = function () {
+                setStatus("Network error", "error");
+                jsonDisplay.textContent = "Failed to reach " + MRS_SERVER;
+            };
+
+            xhr.send(body);
+        }
+
+        function getPosition(callback) {
+            if (!navigator.geolocation) {
+                setStatus("Geolocation not supported", "error");
+                jsonDisplay.textContent = "Your browser does not support geolocation.";
+                return;
+            }
+
+            setStatus("Getting location...", "active");
+
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    callback(
+                        pos.coords.latitude,
+                        pos.coords.longitude,
+                        pos.coords.altitude || 0
+                    );
+                },
+                function (err) {
+                    setStatus("Location error", "error");
+                    jsonDisplay.textContent = "Geolocation error: " + err.message;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        function doScan() {
+            getPosition(function (lat, lon, ele) {
+                queryMRS(lat, lon, ele);
+            });
+        }
+
+        btnScan.addEventListener("click", function () {
+            doScan();
+        });
+
+        // Register service worker
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("sw.js");
+        }
+
+        btnWatch.addEventListener("click", function () {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                btnWatch.textContent = "Watch";
+                btnScan.classList.remove("scanning");
+                setStatus("Stopped", "");
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                setStatus("Geolocation not supported", "error");
+                return;
+            }
+
+            btnWatch.textContent = "Stop";
+            btnScan.classList.add("scanning");
+            setStatus("Watching...", "active");
+
+            watchId = navigator.geolocation.watchPosition(
+                function (pos) {
+                    queryMRS(
+                        pos.coords.latitude,
+                        pos.coords.longitude,
+                        pos.coords.altitude || 0
+                    );
+                },
+                function (err) {
+                    setStatus("Watch error: " + err.message, "error");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 5000
+                }
+            );
+        });
+    </script>
+</body>
+</html>
