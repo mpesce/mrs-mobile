@@ -213,15 +213,35 @@
         }
 
         .startup-message {
-            text-align: center;
-            color: #666;
-            margin-top: 40px;
+            color: #aaa;
+            padding: 16px 8px;
             line-height: 1.6;
         }
 
-        .startup-message .icon {
-            font-size: 36px;
+        .startup-message h2 {
+            text-align: center;
+            color: #7eb8da;
+            font-size: 18px;
             margin-bottom: 12px;
+        }
+
+        .startup-message p {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .startup-message ol {
+            font-size: 14px;
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .startup-message li {
+            margin-bottom: 6px;
+        }
+
+        .startup-message strong {
+            color: #c8d6e5;
         }
     </style>
 </head>
@@ -235,8 +255,14 @@
         <div id="top-half">
             <div id="json-display">
                 <div class="startup-message">
-                    <div class="icon">&#x1F30D;</div>
-                    Tap <strong>Scan</strong> to query nearby MRS registrations
+                    <h2>MRS Scanner</h2>
+                    <p>This app finds digital content anchored to real-world locations near you.</p>
+                    <ol>
+                        <li>Tap <strong>Scan</strong> to search around your current location.</li>
+                        <li>Tap <strong>Watch</strong> to scan continuously as you move.</li>
+                        <li>Use the <strong>Range</strong> slider to widen or narrow your search area.</li>
+                    </ol>
+                    <p>Hits appear as tappable links below. Tap any link to open that location's content.</p>
                 </div>
             </div>
         </div>
